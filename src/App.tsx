@@ -1,122 +1,123 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import "./App.css";
+import { products, type Product } from "./data/products";
+import { useState } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [cart, setCart] = useState<{ product: Product; quantity: number }[]>(
+    [],
+  );
+  const [view, setView] = useState<"products" | "cart">("products");
+  function addToCart(product: Product) {
+    const existingItem = cart.find((item) => item.product.id === product.id);
+
+    if (existingItem) {
+      setCart(
+        cart.map((item) =>
+          item.product.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
+        ),
+      );
+    } else {
+      setCart([...cart, { product, quantity: 1 }]);
+    }
+  }
+
+  function decreaseQuantity(productId: number) {
+    setCart(
+      cart
+        .map((item) =>
+          item.product.id === productId
+            ? { ...item, quantity: item.quantity - 1 }
+            : item,
+        )
+        .filter((item) => item.quantity > 0),
+    );
+  }
+  function increaseQuantity(productId: number) {
+    setCart(
+      cart.map((item) =>
+        item.product.id === productId
+          ? { ...item, quantity: item.quantity + 1 }
+          : item,
+      ),
+    );
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>My Test Shop</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div>
+      <header>
+        <h1>TestShop</h1>
+        <nav>
+          <button onClick={() => setView("products")}>Products</button>
+          <button onClick={() => setView("cart")}>
+            Cart ({cart.reduce((total, item) => total + item.quantity, 0)})
+          </button>
+        </nav>
+      </header>
 
-      <div className="ticks"></div>
+      <main>
+        {view === "products" && (
+          <>
+            <h2>Products</h2>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+            <section>
+              {products.map((product) => (
+                <article key={product.id}>
+                  <h3>{product.name}</h3>
+                  <p>{product.description}</p>
+                  <p>{product.price} kr</p>
+                  <button onClick={() => addToCart(product)}>
+                    Add to cart
+                  </button>
+                </article>
+              ))}
+            </section>
+          </>
+        )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {view === "cart" && (
+          <section className="cart">
+            <h2>Cart</h2>
+
+            {cart.length === 0 ? (
+              <p>Your cart is empty.</p>
+            ) : (
+              cart.map((item) => (
+                <div className="cart-item" key={item.product.id}>
+                  <div className="cart-item-info">
+                    <h3>{item.product.name}</h3>
+                    <p>{item.product.price} kr</p>
+                  </div>
+
+                  <div className="quantity-control">
+                    <button onClick={() => decreaseQuantity(item.product.id)}>
+                      -
+                    </button>
+
+                    <span>{item.quantity}</span>
+
+                    <button onClick={() => increaseQuantity(item.product.id)}>
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+
+            <p>
+              Total:{" "}
+              {cart.reduce(
+                (total, item) => total + item.product.price * item.quantity,
+                0,
+              )}{" "}
+              kr
+            </p>
+          </section>
+        )}
+      </main>
+    </div>
+  );
 }
 
-export default App
+export default App;

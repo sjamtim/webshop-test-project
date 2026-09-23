@@ -9,9 +9,10 @@ type CartItem = {
 
 type CheckoutProps = {
   cart: CartItem[];
+  onClearCart: () => void;
 };
 
-function Checkout({ cart }: CheckoutProps) {
+function Checkout({ cart, onClearCart }: CheckoutProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
@@ -19,6 +20,7 @@ function Checkout({ cart }: CheckoutProps) {
   const [city, setCity] = useState("");
 
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [error, setError] = useState("");
 
   const total = cart.reduce(
     (total, item) => total + item.product.price * item.quantity,
@@ -27,6 +29,8 @@ function Checkout({ cart }: CheckoutProps) {
 
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
+
+    setError("");
 
     const order = {
       customer: {
@@ -43,22 +47,32 @@ function Checkout({ cart }: CheckoutProps) {
       total,
     };
 
-    await fetch("http://localhost:3000/api/orders", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(order),
-    });
+    try {
+      const response = await fetch("http://localhost:3000/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(order),
+      });
 
-    setOrderPlaced(true);
+      if (!response.ok) {
+        throw new Error("Could not place order");
+      }
+      setOrderPlaced(true);
+      onClearCart();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    }
   }
 
   return (
     <main>
       <h2>Checkout</h2>
 
-      {cart.length === 0 ? (
+      {orderPlaced ? (
+        <h3>Order placed successfully!</h3>
+      ) : cart.length === 0 ? (
         <p>Your cart is empty.</p>
       ) : (
         <>
@@ -138,7 +152,7 @@ function Checkout({ cart }: CheckoutProps) {
                   required
                 />
               </label>
-
+              {error && <p>{error}</p>}
               <button type="submit">Place order</button>
             </form>
           )}

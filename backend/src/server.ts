@@ -27,6 +27,20 @@ app.post("/api/orders", async (req, res) => {
 
     const { customer, items } = req.body;
 
+    if (!customer || !items || !Array.isArray(items)) {
+      return res.status(400).json({
+        message: "Invalid order data",
+      });
+    }
+
+    for (const item of items) {
+      if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
+        return res.status(400).json({
+          message: "Invalid quantity",
+        });
+      }
+    }
+
     // Skapa ordern först.
     const orderResult = await client.query(
       `

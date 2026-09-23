@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { type Product } from "../data/products";
+import { type Product } from "../types/products";
 
 type CartItem = {
   product: Product;

@@ -1,6 +1,6 @@
 import "./App.css";
 
-import { type Product } from "./data/products";
+import { type Product } from "./types/products";
 import { useState } from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router";
 import Home from "./pages/Home";

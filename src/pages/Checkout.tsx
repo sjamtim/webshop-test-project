@@ -1,6 +1,6 @@
 import { type SubmitEvent } from "react";
 import { useState } from "react";
-import { type Product } from "../data/products";
+import { type Product } from "../types/products";
 
 type CartItem = {
   product: Product;
@@ -25,25 +25,31 @@ function Checkout({ cart }: CheckoutProps) {
     0,
   );
 
-  function handleSubmit(event: SubmitEvent) {
+  async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
 
     const order = {
       customer: {
-        name: name,
-        email: email,
-        address: address,
-        postalCode: postalCode,
-        city: city,
+        name,
+        email,
+        address,
+        postalCode,
+        city,
       },
       items: cart.map((item) => ({
         productId: item.product.id,
         quantity: item.quantity,
       })),
-      total: total,
+      total,
     };
 
-    console.log("Order:", order);
+    await fetch("http://localhost:3000/api/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(order),
+    });
 
     setOrderPlaced(true);
   }

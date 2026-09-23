@@ -1,7 +1,7 @@
 import "./App.css";
 
-import { type Product } from "./data/products";
-import { useState } from "react";
+import { type Product } from "./types/products";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router";
 import Home from "./pages/Home";
 import Products from "./pages/Products";
@@ -10,8 +10,16 @@ import Checkout from "./pages/Checkout";
 
 function App() {
   const [cart, setCart] = useState<{ product: Product; quantity: number }[]>(
-    [],
+    () => {
+      const savedCart = localStorage.getItem("cart");
+
+      return savedCart ? JSON.parse(savedCart) : [];
+    },
   );
+
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
   function addToCart(product: Product) {
     const existingItem = cart.find((item) => item.product.id === product.id);
 
@@ -81,7 +89,10 @@ function App() {
               />
             }
           />
-          <Route path="/checkout" element={<Checkout cart={cart} />} />
+          <Route
+            path="/checkout"
+            element={<Checkout cart={cart} onClearCart={() => setCart([])} />}
+          />
         </Routes>
       </div>
     </BrowserRouter>

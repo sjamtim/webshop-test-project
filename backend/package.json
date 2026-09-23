@@ -19,10 +19,13 @@
   "packageManager": "pnpm@11.24.0",
   "type": "module",
   "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.2",
     "express": "^5.2.1",
     "pg": "^8.23.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.2",
     "@types/pg": "^8.23.1",

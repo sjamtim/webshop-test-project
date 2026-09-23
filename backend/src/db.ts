@@ -1,19 +1,24 @@
+import "dotenv/config";
 import pg from "pg";
 
 const { Pool } = pg;
 
-export const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "testshop",
-  password: "hejhej123",
-  port: 5432,
-});
+const {
+  DB_USER,
+  DB_HOST,
+  DB_NAME,
+  DB_PASSWORD,
+  DB_PORT,
+} = process.env;
 
-async function testDatabaseConnection() {
-  const result = await pool.query("SELECT * FROM products");
-
-  console.log("Products from database:", result.rows);
+if (!DB_USER || !DB_HOST || !DB_NAME || !DB_PASSWORD || !DB_PORT) {
+  throw new Error("Missing database environment variables");
 }
 
-testDatabaseConnection();
+export const pool = new Pool({
+  user: DB_USER,
+  host: DB_HOST,
+  database: DB_NAME,
+  password: DB_PASSWORD,
+  port: Number(DB_PORT),
+});
